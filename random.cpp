@@ -15,7 +15,7 @@ void handle_sigquit(int s) {
 }
 
 void delay() {
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 int main(int argc, char ** argv) {

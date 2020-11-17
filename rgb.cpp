@@ -32,8 +32,8 @@ char RGB_B[32][32];
 
 /* INTENSITY LEVELS FOR THE RGB */
 char ZERO = 0;
-char ONE = 3;
-char TWO = 5;
+char ONE = 5;
+char TWO = 240;
 char THREE = 255; 
 
 
