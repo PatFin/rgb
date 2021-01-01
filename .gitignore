@@ -1,6 +1,9 @@
+deploy
 random
 cycle
-*.o
-*~
+master
 cascade
 raindrop
+*.o
+*~
+

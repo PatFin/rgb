@@ -4,8 +4,8 @@
 #include <thread>
 #include "rgb.h"
 
-const int DROP_COUNT = 50;
-const int MIN_DROP_LENGTH = 2;
+const int DROP_COUNT = 70;
+const int MIN_DROP_LENGTH = 4;
 const int MAX_DROP_LENGTH = 10;
 const int DELAY = 70; //milliseconds
 
@@ -28,9 +28,9 @@ void handle_sigint(int s) {
 
 void initDrop(int idx) {
     droplets[idx].column=rand()%32;
-    droplets[idx].r=Intensity[rand()%4];
-    droplets[idx].g=Intensity[rand()%4];
-    droplets[idx].b=Intensity[rand()%4];
+    droplets[idx].r=Intensity[rand()%2];
+    droplets[idx].g=Intensity[rand()%2];
+    droplets[idx].b=Intensity[rand()%2];
     droplets[idx].headRow=0 - rand()%20;
     droplets[idx].length = MIN_DROP_LENGTH + rand()%(MAX_DROP_LENGTH - MIN_DROP_LENGTH);
 }
