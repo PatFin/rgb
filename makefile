@@ -29,4 +29,7 @@ random:random.o rgb.o
 	g++ -l wiringPi -l pthread -o random random.o rgb.o
 
 clean:
-	rm -f rgb.o main.o cycle random cascade
+	rm -f *.o
+
+cleanall: clean
+	rm -f cycle random cascade
