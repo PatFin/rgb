@@ -3,7 +3,12 @@
 #include <chrono>
 #include <thread>
 #include <pthread.h>
-#include "rgb.h"
+
+extern "C" {
+  #include "rgb.h"
+}
+
+
 
 #define A 22
 #define B 26
@@ -21,25 +26,22 @@
 #define LAT 21
 #define OE 4
 
-/* 
+/**
  * Intensity level for each cell of the RGB matrix
  * Intensity level is determined by the number of bits
- * in the 8 bit value. 
+ * in the 8 bit value.
+ * The 32 bit number contained in here is used as follows:
+ * [________ RRRRRRRR GGGGGGGG BBBBBBBB]
  */
-char RGB_R[32][32];
-char RGB_G[32][32];
-char RGB_B[32][32];
+int RGB[32][32];
 
-/* INTENSITY LEVELS FOR THE RGB */
-char ZERO = 0;
-char ONE = 5;
-char TWO = 240;
-char THREE = 255; 
-
-
-char Intensity [4] = {ZERO, ONE, TWO, THREE}; //, FOUR, FIVE, SIX, SEVEN, EIGHT};
-
+/**
+ * Thread in charge of actionning the GPIO to send the contents of #RGB to the
+ * panel
+ */
 pthread_t refreshThread;
+
+/** Flag used to signal to the refreshThread that is needs to quit */
 volatile bool RGB_exitFlag;
 
 /* Forward declaration of procedures */ 
@@ -70,7 +72,6 @@ void RGB_init(){
   RGB_reset();
   digitalWrite(OE, 0);
 
-  
   //Launch the pthread responsible for refreshing the RGB matrix
   RGB_exitFlag = false;
   pthread_create(&refreshThread, NULL, refresh_thread, NULL);
@@ -81,12 +82,23 @@ void RGB_refresh(){
   static uint8_t power = 0;
 
   for(int x = 0; x < 32; x++) {
-    digitalWrite(R1, RGB_R[line][x] > power);
-    digitalWrite(G1, RGB_G[line][x] > power);
-    digitalWrite(B1, RGB_B[line][x] > power);
-    digitalWrite(R2, RGB_R[line+16][x] > power);
-    digitalWrite(G2, RGB_G[line+16][x] > power);
-    digitalWrite(B2, RGB_B[line+16][x] > power);
+    int cell1 = RGB[line][31-x];
+    int cell2 = RGB[line+16][31-x];
+
+    digitalWrite(R1, ((cell1 & 16711680) >> 16) > power);
+    digitalWrite(G1, ((cell1 & 65280) >> 8) > power);
+    digitalWrite(B1, (cell1 & 255) > power);
+
+    digitalWrite(R2, ((cell2 & 16711680) >> 16) > power);
+    digitalWrite(G2, ((cell2 & 65280) >> 8) > power);
+    digitalWrite(B2, (cell2 & 255) > power); 
+
+    //    digitalWrite(R1, RGB_R[x][line] > power);
+    //digitalWrite(G1, RGB_G[x][line] > power);
+    //digitalWrite(B1, RGB_B[x][line] > power);
+    //digitalWrite(R2, RGB_R[line+16][x] > power);
+    //digitalWrite(G2, RGB_G[line+16][x] > power);
+    //digitalWrite(B2, RGB_B[line+16][x] > power);
 
     digitalWrite(CLK, 1);
     digitalWrite(CLK, 0);
@@ -102,11 +114,10 @@ void RGB_refresh(){
   digitalWrite(C, line & 4);
   //For D, first write the opposite value then flip output
   digitalWrite(D, line < 8? 1 : 0);
-  std::this_thread::sleep_for(std::chrono::microseconds(2));
-  digitalWrite(D, line < 8? 0 : 1);  
+  std::this_thread::sleep_for(std::chrono::microseconds(1));
+  digitalWrite(D, line < 8? 0 : 1);
 
   digitalWrite(OE, 0);
-  
   line++;
   if (line >= 16) {
     line = 0;
@@ -126,9 +137,7 @@ void * refresh_thread(void * arg){
 void RGB_reset(){
   for(int i = 0; i < 32; i++) {
     for(int j=0; j < 32; j++){
-      RGB_R[i][j] = ZERO;
-      RGB_G[i][j] = ZERO;
-      RGB_B[i][j] = ZERO;
+      RGB[i][j] = ZERO;
     }
   }
 }
@@ -142,4 +151,11 @@ void RGB_exit() {
     RGB_refresh();
   }
   digitalWrite(OE, 1);
+}
+
+
+int RGB_randColor() {
+  int colorMask = 5;
+  int mask = (colorMask << 16) | (colorMask << 8) | (colorMask);
+  return rand() & mask;
 }

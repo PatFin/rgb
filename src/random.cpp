@@ -2,7 +2,10 @@
 #include <signal.h>
 #include <chrono>
 #include <thread>
+
+extern "C" {
 #include "rgb.h"
+}
 
 static volatile sig_atomic_t keepGoing = 1;
 
@@ -24,17 +27,13 @@ int main(int argc, char ** argv) {
 
   signal(SIGINT, handle_sigint);
   signal(SIGQUIT, handle_sigquit);
-  
+
   srand(time(NULL));
   while(keepGoing) {
     int x = rand()%32;
     int y = rand()%32;
-    int r = rand()%2;
-    int g = rand()%2;
-    int b = rand()%2;
-    RGB_R[x][y]=Intensity[r];
-    RGB_G[x][y]=Intensity[g];
-    RGB_B[x][y]=Intensity[b];
+    int color = RGB_randColor();
+    RGB[x][y]=color;
     delay();
   }
   RGB_exit();

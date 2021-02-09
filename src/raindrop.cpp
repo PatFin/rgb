@@ -2,7 +2,10 @@
 #include <signal.h>
 #include <chrono>
 #include <thread>
-#include "rgb.h"
+
+extern "C" { 
+#include "rgb.h" 
+}
 
 const int DROP_COUNT = 70;
 const int MIN_DROP_LENGTH = 4;
@@ -15,7 +18,7 @@ struct drop {
   int column;
   int headRow;
   int length;
-  char r,g,b;
+  int color;
 } droplets[DROP_COUNT];
 
 void delay() {
@@ -27,12 +30,10 @@ void handle_sigint(int s) {
 }
 
 void initDrop(int idx) {
-    droplets[idx].column=rand()%32;
-    droplets[idx].r=Intensity[rand()%2];
-    droplets[idx].g=Intensity[rand()%2];
-    droplets[idx].b=Intensity[rand()%2];
-    droplets[idx].headRow=0 - rand()%20;
-    droplets[idx].length = MIN_DROP_LENGTH + rand()%(MAX_DROP_LENGTH - MIN_DROP_LENGTH);
+  droplets[idx].column=rand()%32;
+  droplets[idx].color = RGB_randColor();
+  droplets[idx].headRow=0 - rand()%20;
+  droplets[idx].length = MIN_DROP_LENGTH + rand()%(MAX_DROP_LENGTH - MIN_DROP_LENGTH);
 }
 
 int main(int argc, char ** argv) {
@@ -46,29 +47,21 @@ int main(int argc, char ** argv) {
     initDrop(i);
   }
 
-
-  
   while(keepGoing) {
     for(int i=0;i<DROP_COUNT;i++){
       //Print the individual droplets and make them progress by one line
       int column = droplets[i].column;
       int headRow = droplets[i].headRow;
-      char r = droplets[i].r;
-      char g = droplets[i].g;
-      char b = droplets[i].b;
+      int color = droplets[i].color;
       if (headRow >= 0 && headRow<32){
-	RGB_R[column][headRow]=r;
-	RGB_G[column][headRow]=g;
-	RGB_B[column][headRow]=b;
+        RGB[column][headRow] = color;
       }
 
       int erase = headRow - droplets[i].length;
       if (erase >= 32) {
-	initDrop(i);
+        initDrop(i);
       } else if (erase >= 0) {
-	RGB_R[column][erase]=0;
-	RGB_G[column][erase]=0;
-	RGB_B[column][erase]=0;
+        RGB[column][erase] = 0;
       }
       droplets[i].headRow++;
     }
