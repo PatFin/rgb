@@ -1,9 +1,2 @@
-deploy
-random
-cycle
-master
-cascade
-raindrop
-*.o
-*~
-
+build
+scripts

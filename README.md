@@ -22,9 +22,9 @@ Cloning into 'rgb'...
 2. Create a build directory and generate the Makefile
 
 ```
-pi@raspberry:~ $ mkdir rgb/build
-pi@raspberry:~ $ cd rgb/build
-pi@raspberry:~/rgb/build $ cmake ../src
+pi@raspberry:~ $ mkdir build
+pi@raspberry:~ $ cd build
+pi@raspberry:~/rgb/build $ cmake ..
 --- The C compiler identification is GNU 8.3.0
 ...
 ```
@@ -33,14 +33,24 @@ pi@raspberry:~/rgb/build $ cmake ../src
 
 ```
 pi@raspberry:~/rgb/build $ make
-Scanning dependencies of target RGB
+Scanning dependencies of target rgb
+[ 10%] Building CXX object src/CMakeFiles/rgb.dir/rgb.cpp.o
+[ 20%] Linking CXX shared library librgb.so
+[ 20%] Built target rgb
 ...
 [100%] Built target Cycle
 ```
 
 4. Enjoy!
 
+Four example programs were built in subdirectory 'apps':
+
++ Cascade
++ Cycle
++ Raindrop
++ Random
+
 ```
-pi@raspberry:~/rgb/build $ ./Random
+pi@raspberry:~/rgb/build $ ./apps/Random
 ```
-Use Ctrl+C to stop the programs.
+Use Ctrl+C to stop the program. 
